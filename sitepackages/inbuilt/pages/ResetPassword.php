@@ -1,44 +1,81 @@
 <?php
-
 $method = $_SERVER['REQUEST_METHOD'];
 
 switch ($method) {
     case "POST":
-        $data = json_decode(file_get_contents('php://input'));
-        
-        $user_id = $data->userId;
-        $password = $data->password;
-        $otp = $data->otp; // assuming OTP is also provided in the payload
-        
-        $hashedPassword = md5($password); // Consider using password_hash for better security
-        
-        // Update password and OTP in the database
-        $result = $objQuery->updateRow(
-            "`site_user`", 
-            "`password`='$hashedPassword', `otp`='$otp'", 
-            "`userId`='$user_id'"
-        );
-        
-        if ($result) {
+        $user = json_decode(file_get_contents('php://input'));
+        $phone = $user->phone;
+        // var_dump($user);
+        // die();
+        $json_data = array();
+
+        if ($objQuery->fetchNumRow("`site_user`", "`phone_number`='" . $phone . "'") == 1) {
+
+            // Authorisation details.
+            $otp=mt_rand(100,9999);
+
+            $mobile = '91'.$phone;
+            $message = 'Hello';
+            $apiKey = 'NjE3ODY5NmQ0ZDM5NGU2OTRmNjI0YzUxNTA0YzcyMzM=';
+            $yourDiscountCode="10";
+            
+            // Message details
+            $numbers = array($mobile);
+            $sender = '600010';
+            $objQuery->insertData("`user_otp`", "`phone_number`='".$phone."',`otp`='".md5($otp). "'");
+            // $cookie_name = "otp";
+            // $cookie_value = $otp;
+            // setcookie($cookie_name, $cookie_value, time() + (86400 * 30), "/"); // 86400 = 1 day
+            // $_SESSION["otp"]=$otp;
+            // $_SESSION["phone_number"]=$phone;
+            // print_r($_SESSION); 
+            die;
+            // echo $otp; die;
+            // Dynamic template message with placeholder for variable
+            $templateMessage = 'Hi there, thank you for sending your first test message from Textlocal. Get 20% off today with our code: '.$otp.'.';
+            // echo  $templateMessage; 
+             // Replace 'var' with your actual discount code variable
+            
+            // Encode message
+            $message = rawurlencode($templateMessage);
+            
+            // $numbers = implode(',', $numbers);
+            
+            // Prepare data for POST request
+            // $data = array(
+            //     'apikey' => $apiKey,
+            //     'numbers' => $numbers,
+            //     'sender' => $sender,
+            //     'message' => $message,
+            //     'template_id' => '1107161517879065578' // Specify the ID or name of your dynamic template
+            // );
+            
+            // Send the POST request with cURL
+            // $ch = curl_init('https://api.textlocal.in/send/');
+            // curl_setopt($ch, CURLOPT_POST, true);
+            // curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+            // curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            // $response = curl_exec($ch);
+            
+            // Check for errors
+            if ($response === false) {
+                echo 'Curl error: ' . curl_error($ch);
+            } else {
+                // Process your response here
+                echo $response;
+            }
+            
             http_response_code(200);
             echo json_encode(array(
-                'status' => 200,
-                'message' => "Password and OTP updated successfully"
+                'status' => 200, // success or not?
+                'message' => "Reset password link has been send to your email Id"
             ));
         } else {
-            http_response_code(500);
+            http_response_code(400);
             echo json_encode(array(
-                'status' => 500,
-                'message' => "Failed to update password and OTP"
+                'status' => 400,
+                'message' => "User not found! please try Again"
             ));
         }
-        break;
-    default:
-        http_response_code(405);
-        echo json_encode(array(
-            'status' => 405,
-            'message' => "Method Not Allowed"
-        ));
-        break;
 }
-?>
+// session_destroy();

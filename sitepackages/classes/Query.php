@@ -430,6 +430,26 @@ class Query
 	/***************************************************************************************
 	 * Method for date difference, End
 	 ***************************************************************************************/
+		/***************************************************************************************
+	* Method for date difference, Start
+	***************************************************************************************/
+	function getOrderHistory($userid){
+		$sql="select shop_order.user_id, shop_order.order_id, shop_order.order_total, order_line.quantity,order_line.ordered_price, shop_order.order_status, shop_order.order_date, product.id, product.brand_name, product.short_name, product.product_image, product.default_size FROM shop_order JOIN order_line ON shop_order.order_id = order_line.order_id JOIN product ON order_line.product_id = product.id WHERE shop_order.user_id='$userid'";
+		
+		$result=mysqli_query($this->getMysqliLink(),$sql) or die(mysqli_error($this->getMysqliLink()));
+		return $result;
+	}
+	// Avidev
+	function getOrderdetailhistory($userid){
+		$sql="select shop_order.user_id, shop_order.order_id, shop_order.order_total, order_line.quantity,order_line.ordered_price, shop_order.order_status, shop_order.order_date, product.id, product.brand_name, product.short_name, product.product_image, product.default_size FROM shop_order JOIN order_line ON shop_order.order_id = order_line.order_id JOIN product ON order_line.product_id = product.id WHERE shop_order.user_id='$userid'";
+		
+		$result=mysqli_query($this->getMysqliLink(),$sql) or die(mysqli_error($this->getMysqliLink()));
+		return $result;
+	}
+	
+	/***************************************************************************************
+	* Method for date difference, End
+	***************************************************************************************/
 	function CustomerResult()
 	{
 		$sql = "SELECT site_user.id,site_user.userId,site_user.f_name,`updated_at`AS last_seen, SUM(shop_order.order_total) AS order_total,SUM(shop_order.total_quantity) AS total_quantity FROM site_user LEFT JOIN shop_order ON site_user.userId = shop_order.user_id GROUP BY site_user.userId";
